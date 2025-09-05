@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Idea Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-black to-gray-950 text-gray-100 min-h-screen flex flex-col items-center justify-center font-sans">
+
+  <div class="text-center mb-8">
+    <h1 class="text-5xl font-extrabold text-indigo-400 drop-shadow-lg">💡 Idea Generator</h1>
+    <p class="text-gray-400 mt-2">Click below to spark your next big business idea</p>
+  </div>
+
+  <div class="bg-gray-900/70 border border-indigo-500/20 rounded-2xl p-8 w-full max-w-xl shadow-2xl text-center">
+    <div id="output" class="text-lg text-gray-200 bg-gray-800/60 border border-dashed border-indigo-500/30 rounded-xl p-6 min-h-[100px] flex items-center justify-center">
+      Click “Generate” to get started!
+    </div>
+
+    <div class="flex flex-wrap gap-4 justify-center mt-6">
+      <button id="generate" class="bg-indigo-500 hover:bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-md transition">Generate</button>
+      <button id="save" class="border border-indigo-400 px-6 py-3 rounded-xl hover:bg-indigo-400/10">Save</button>
+      <button id="copy" class="border border-indigo-400 px-6 py-3 rounded-xl hover:bg-indigo-400/10">Copy</button>
+    </div>
+  </div>
+
+  <div class="bg-gray-900/70 border border-indigo-500/20 rounded-2xl p-6 w-full max-w-xl shadow-xl mt-8">
+    <p class="text-gray-400 mb-3 font-semibold">📜 Saved Ideas</p>
+    <div id="history" class="flex flex-col gap-2 max-h-[200px] overflow-y-auto"></div>
+    <div class="flex gap-3 mt-4 flex-wrap">
+      <button id="export" class="border border-indigo-400 px-4 py-2 rounded-xl hover:bg-indigo-400/10">Export</button>
+      <button id="clear" class="border border-indigo-400 px-4 py-2 rounded-xl hover:bg-indigo-400/10">Clear</button>
+    </div>
+  </div>
+
+  <!-- Back to Dashboard -->
+  <div class="mt-10">
+    <a href="index.html" class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-xl shadow-md transition">
+      ⬅ Back to Dashboard
+    </a>
+  </div>
+
+  <script>
+    const ideas = [
+      // Original 10
+      "Launch a subscription snack box",
+      "Start a custom merchandise shop",
+      "Offer eco-friendly packaging solutions",
+      "Build websites for small businesses",
+      "Create digital courses on your skill",
+      "Open a home-baked desserts brand",
+      "Start a mobile car cleaning service",
+      "Develop a productivity mobile app",
+      "Run online fitness classes",
+      "Organize skill-based workshops",
+
+      // +20 New Ideas
+      "Create personalized greeting cards",
+      "Start a social media management service",
+      "Sell handmade candles online",
+      "Offer resume writing and LinkedIn profile optimization",
+      "Launch an online thrift store",
+      "Provide drone photography for events",
+      "Develop a kids’ educational YouTube channel",
+      "Start a plant rental & maintenance service for offices",
+      "Offer language tutoring online",
+      "Sell digital templates (resumes, planners, presentations)",
+      "Run a podcast about local businesses",
+      "Offer customized meal-prep services",
+      "Create eco-friendly cleaning products",
+      "Launch a travel vlogging channel",
+      "Start a handmade soap/skincare brand",
+      "Provide virtual event hosting & moderation",
+      "Develop printable wall art and sell on Etsy",
+      "Create subscription boxes for books or comics",
+      "Start a recycling pickup service in your neighborhood",
+      "Build a personal finance or budgeting app"
+    ];
+
+    const el = id => document.getElementById(id);
+    const out = el("output"), hist = el("history");
+    const storeKey = "pro_ideas";
+
+    function generateIdea() {
+      const idea = ideas[Math.floor(Math.random() * ideas.length)];
+      out.textContent = "💡 " + idea;
+    }
+
+    function saveIdea() {
+      const txt = out.textContent.trim();
+      if (!txt || txt.includes("Click")) return;
+      let data = JSON.parse(localStorage.getItem(storeKey)||"[]");
+      if (!data.includes(txt)) data.unshift(txt);
+      localStorage.setItem(storeKey, JSON.stringify(data.slice(0,20)));
+      loadHistory();
+    }
+
+    function loadHistory() {
+      let data = JSON.parse(localStorage.getItem(storeKey)||"[]");
+      hist.innerHTML="";
+      data.forEach(t=>{
+        let row=document.createElement("div");
+        row.className="bg-gray-800/60 border border-indigo-500/20 rounded-xl px-3 py-2 flex justify-between items-center";
+        row.innerHTML=`<span class='text-sm text-gray-200'>${t}</span>`;
+        let btn=document.createElement("button");
+        btn.textContent="Copy";
+        btn.className="border border-indigo-400 px-2 py-1 rounded-md text-xs hover:bg-indigo-400/10";
+        btn.onclick=()=>navigator.clipboard.writeText(t);
+        row.appendChild(btn);
+        hist.appendChild(row);
+      });
+    }
+
+    function copyIdea() {
+      navigator.clipboard.writeText(out.textContent.trim());
+    }
+
+    function exportIdeas() {
+      let data=JSON.parse(localStorage.getItem(storeKey)||"[]");
+      let blob=new Blob([data.join("\\n")],{type:"text/plain"});
+      let url=URL.createObjectURL(blob);
+      let a=document.createElement("a");
+      a.href=url; a.download="saved-ideas.txt"; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearIdeas() {
+      localStorage.removeItem(storeKey);
+      loadHistory();
+    }
+
+    el("generate").onclick=generateIdea;
+    el("save").onclick=saveIdea;
+    el("copy").onclick=copyIdea;
+    el("export").onclick=exportIdeas;
+    el("clear").onclick=clearIdeas;
+
+    loadHistory();
+  </script>
+
+</body>
+</html>
